@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: logout-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: logout-system
+  template:
+    metadata:
+      labels:
+        app: logout-system
+    spec:
+      containers:
+      - name: logout-system
+        image: deepak340/logout-system
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: logout-system-service
+spec:
+  selector:
+    app: logout-system
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: LoadBalancer
