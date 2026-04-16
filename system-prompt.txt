@@ -1,0 +1,92 @@
+TITLE=""
+
+DESCRIPTION=""
+DOCKER_IMAGE="deepak340/${TITLE}"
+GIT_REPO=""https://github.com/yourusername/${TITLE}.git" (https://github.com/yourusername/${TITLE}.git)"
+BRANCH="main"
+
+Create a Java Maven project named TITLE.
+Structure:
+
+TITLE/pom.xml
+TITLE/Dockerfile
+TITLE/deployment.yaml
+TITLE/script.txt
+TITLE/src/main/java/com/example/App.java
+TITLE/src/test/java/com/example/AppTest.java
+
+Package: com.example
+
+App.java - Generate a meaningful Java program in App.java based on TITLE and DESCRIPTION.
+The program must simulate the functionality described 
+Include multiple methods and not just a single print statement.
+main() should demonstrate the functionality.
+
+AppTest.java must contain JUnit tests validating the main functionality of the program.
+
+script.txt must contain this Jenkins declarative pipeline for a Windows agent(instead of sh use bat) with mvnd instead of mvn:
+
+pipeline {
+agent any
+
+environment {
+    DOCKER_IMAGE = "DOCKER_IMAGE"
+}
+
+stages {
+
+    stage('Clone Repository') {
+        steps {
+            git branch: 'BRANCH', url: 'GIT_REPO'
+        }
+    }
+
+    stage('Build & Run Tests') {
+        steps {
+            sh 'mvn clean test'
+        }
+        post {
+            always {
+                junit 'target/surefire-reports/*.xml'
+            }
+        }
+    }
+
+    stage('Package Application') {
+        steps {
+            sh 'mvn package -DskipTests'
+        }
+    }
+
+    stage('Build Docker Image') {
+        steps {
+            sh "docker build -t ${DOCKER_IMAGE} ."
+        }
+    }
+
+    stage('Push to DockerHub') {
+        steps {
+            withCredentials([usernamePassword(
+                credentialsId: 'dockerhub-creds',
+                usernameVariable: 'DOCKER_USER',
+                passwordVariable: 'DOCKER_PASS'
+            )]) {
+                sh """
+                echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin
+                docker push ${DOCKER_IMAGE}
+                """
+            }
+        }
+    }
+
+    stage('Deploy to Kubernetes') {
+        steps {
+            sh 'kubectl apply -f deployment.yaml'
+        }
+    }
+
+}
+
+}
+
+Do not include comments or explanations in any file.
