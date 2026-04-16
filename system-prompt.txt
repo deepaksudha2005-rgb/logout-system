@@ -24,6 +24,8 @@ main() should demonstrate the functionality.
 
 AppTest.java must contain JUnit tests validating the main functionality of the program.
 
+Dockerfile  -  Use "FROM eclipse-temurin:17-jdk-alpine"
+
 script.txt must contain this Jenkins declarative pipeline for a Windows agent(instead of sh use bat) with mvnd instead of mvn:
 
 pipeline {
